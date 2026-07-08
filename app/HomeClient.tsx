@@ -15,7 +15,6 @@ import { BlogSection } from '@/app/components/sections/BlogSection';
 import { ContactSection } from './components/sections/ContactSection';
 import { CTASection } from '@/app/components/sections/CTASection';
 import { GallerySection } from '@/app/components/sections/GallerySection';
-import { ServingAreasSection } from '@/app/components/sections/ServingAreasSection';
 import { getThemeColors } from '@/app/lib/themeBuilder';
 import { PageContentLoader } from '@/app/components/ui/PageContentLoader';
 
@@ -113,28 +112,25 @@ export default function HomeClient() {
 
       <main>
         <HeroSection hero={displayPage.hero} page={displayPage} />
-        <AboutSection aboutSection={displayPage.aboutSection} page={displayPage} />
+        <TestimonialsSection testimonialsSection={displayPage.testimonialsSection} />
         <ServicesSection
           servicesSection={displayPage.servicesSection}
           companyDetailSection={displayPage.companyDetailSection}
           ctaSection={displayPage.ctaSection}
           page={displayPage}
         />
-        <CompanyDetailSection companyDetailSection={displayPage.companyDetailSection} />
+        <AboutSection aboutSection={displayPage.aboutSection} page={displayPage} />
         <CTASection ctaSection={displayPage.ctaSection} />
-        <BlogSection blogSection={displayPage.blogSection} />
+        <WhyChooseUsSection whyChooseUsSection={displayPage.whyChooseUsSection} />
+        <CompanyDetailSection companyDetailSection={displayPage.companyDetailSection} />
         <ProjectsSection
           projectSection={displayPage.projectSection}
           projectsSection={displayPage.projectsSection}
           projectsLimit={3}
         />
         <GallerySection gallerySection={displayPage.gallerySection} />
-        <WhyChooseUsSection whyChooseUsSection={displayPage.whyChooseUsSection} />
+        <BlogSection blogSection={displayPage.blogSection} />
         <FAQSection faqSection={displayPage.faqSection} />
-        <TestimonialsSection testimonialsSection={displayPage.testimonialsSection} />
-        <ServingAreasSection
-          servingAreasSection={displayPage.servingAreasSection ?? { enabled: true }}
-        />
         <ContactSection contactSection={displayPage.contactSection} />
       </main>
       <Footer />

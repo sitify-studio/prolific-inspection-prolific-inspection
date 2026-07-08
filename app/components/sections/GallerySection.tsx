@@ -91,35 +91,18 @@ export function GallerySection({
   if (galleryImages.length === 0) return null;
 
   return (
-    <section
-      id="gallery"
-      className={cn('relative py-12 lg:py-24 wb-surface-page overflow-hidden', className)}
-    >
-      <div
-        className="pointer-events-none absolute -right-32 top-1/4 h-96 w-96 rounded-full opacity-30 blur-3xl"
-        aria-hidden
-        style={{
-          background: 'radial-gradient(circle, color-mix(in srgb, var(--wb-primary) 25%, transparent), transparent 70%)',
-        }}
-      />
-
-      <div className="container mx-auto px-6 lg:px-10 xl:px-14 relative z-10">
-        <div
-          ref={headerRef}
-          className={`flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-10 lg:mb-14 transition-all duration-1000 ${
-            headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-          }`}
-        >
-          <div>
-            <span className="section-label">Our Projects</span>
-            <h2 className="section-heading-lg max-w-xl">{title}</h2>
-          </div>
-          <p className="section-desc max-w-md lg:text-right">{description}</p>
-        </div>
+    <section id="gallery" className={cn('hg-section hg-section-alt', className)}>
+      <div className="container mx-auto px-4 lg:px-8">
+        <h2 className="hg-section-title">{title}</h2>
+        {description && (
+          <p className="hg-section-desc max-w-2xl">
+            {description}
+          </p>
+        )}
 
         <div
           ref={gridRef}
-          className="grid grid-cols-2 lg:grid-cols-3 auto-rows-fr gap-3 sm:gap-4 lg:gap-5"
+          className="grid grid-cols-2 lg:grid-cols-3 gap-4"
         >
           {galleryImages.map((image, index) => {
             const isVisible = visibleItems.includes(index);
@@ -130,10 +113,8 @@ export function GallerySection({
                 key={image.id}
                 type="button"
                 className={cn(
-                  'group relative overflow-hidden rounded-2xl border wb-border-on-light text-left w-full transition-all duration-700 ease-out',
-                  collageClass(index, galleryImages.length),
-                  isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95',
-                  isHovered && 'z-10 shadow-[0_24px_60px_-20px_color-mix(in_srgb,var(--wb-primary)_40%,transparent)]'
+                  'group relative overflow-hidden rounded border border-[color-mix(in_srgb,var(--wb-text-main)_12%,transparent)] text-left w-full aspect-square bg-[var(--wb-card-bg-light)]',
+                  isVisible ? 'opacity-100' : 'opacity-0'
                 )}
                 style={{
                   transitionDelay: isVisible ? `${index * 60}ms` : '0ms',

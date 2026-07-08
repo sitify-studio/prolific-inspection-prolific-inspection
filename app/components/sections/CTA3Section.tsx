@@ -46,7 +46,7 @@ export const CTA3Section: React.FC<CTA3SectionProps> = ({ cta3Section, className
       />
 
       <div className="relative container mx-auto px-4">
-        <div className="py-16 lg:py-24">
+        <div className="py-10 lg:py-14">
           <div className="max-w-4xl">
             {safeCta.title && (
               <div

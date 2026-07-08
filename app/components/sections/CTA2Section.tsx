@@ -102,7 +102,7 @@ export const CTA2Section: React.FC<CTA2SectionProps> = ({ cta2Section, className
     <section
       ref={sectionRef}
       className={cn(
-        'relative isolate overflow-hidden py-20 md:py-28 lg:py-32',
+        'relative isolate overflow-hidden py-12 md:py-16 lg:py-20',
         !hasBgImage && 'wb-hairline-t-light',
         className
       )}

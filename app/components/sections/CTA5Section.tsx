@@ -28,7 +28,7 @@ export const CTA5Section: React.FC<CTA5SectionProps> = ({ cta5Section, className
 
   return (
     <section
-      className={cn('relative overflow-hidden py-24 md:py-32', className)}
+      className={cn('relative overflow-hidden py-12 md:py-16', className)}
       style={{
         backgroundColor: safe.backgroundColor || themeColors.pageBackground,
         backgroundImage: bgUrl ? `url(${bgUrl})` : undefined,

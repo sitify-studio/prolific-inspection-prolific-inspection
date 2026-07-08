@@ -17,7 +17,7 @@ export const CustomSection: React.FC<CustomSectionProps> = ({ section, className
     const themeFonts = useThemeFonts();
 
     return (
-        <section className={cn('py-16', className)} style={{ backgroundColor: themeColors.pageBackground }}>
+        <section className={cn('py-10', className)} style={{ backgroundColor: themeColors.pageBackground }}>
             <div className="container mx-auto px-4">
                 {section.title && (
                     <h2

@@ -60,6 +60,34 @@ export const ThemeFontWrapper: React.FC<ThemeFontWrapperProps> = ({ children }) 
       if (theme.primaryButtonColorDark) {
         styles['--wb-primary-dark'] = theme.primaryButtonColorDark;
       }
+
+      const accentDark =
+        theme.sectionBackgroundColorDark ||
+        theme.primaryButtonColorDark ||
+        theme.cardBackgroundColorDark;
+      if (accentDark) {
+        styles['--wb-accent-dark'] = accentDark;
+        styles['--wb-accent-dark-hover'] =
+          theme.hoverActiveColorDark ||
+          theme.hoverActiveColorLight ||
+          accentDark;
+      }
+
+      const phoneBtnBg =
+        theme.primaryButtonColorDark ||
+        theme.sectionBackgroundColorDark ||
+        primaryColor;
+      if (phoneBtnBg) {
+        styles['--wb-phone-btn-bg'] = phoneBtnBg;
+      }
+
+      if (theme.lightPrimaryColor) {
+        styles['--wb-accent-light'] = theme.lightPrimaryColor;
+      }
+      if (theme.lightSecondaryColor) {
+        styles['--wb-accent-light-secondary'] = theme.lightSecondaryColor;
+      }
+
       if (theme.inactiveColorLight) styles['--wb-inactive'] = theme.inactiveColorLight;
       else if (theme.inactiveColorDark) styles['--wb-inactive'] = theme.inactiveColorDark;
     }

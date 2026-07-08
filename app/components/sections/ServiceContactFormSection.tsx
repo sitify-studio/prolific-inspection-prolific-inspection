@@ -66,7 +66,7 @@ export const ServiceContactFormSection: React.FC<ServiceContactFormSectionProps>
 
   return (
     <section 
-      className="py-24 md:py-32 lg:py-40 flex flex-col gap-32 lg:gap-48" 
+      className="py-12 md:py-16 lg:py-20 flex flex-col gap-16 lg:gap-24" 
       style={{ backgroundColor: themeColors.pageBackground, fontFamily: themeFonts.body }}
     >
       

@@ -104,20 +104,23 @@ const SLUG_PATH_ALIASES: Record<string, string> = {
   'project-detail': '/project-detail',
 };
 
-/** Resolves a CMS page to the correct Next.js route. */
+/** Resolves a CMS page to the correct Next.js route (builder slug first). */
 export function getPageHref(page: Page): string {
   if (page.pageType === 'home') return '/';
 
   const slug = (page.slug || '').replace(/^\/+|\/+$/g, '');
-  const normalized = slug.toLowerCase();
-  if (normalized && SLUG_PATH_ALIASES[normalized]) {
-    return SLUG_PATH_ALIASES[normalized];
+  if (slug) {
+    const normalized = slug.toLowerCase();
+    if (SLUG_PATH_ALIASES[normalized]) {
+      return SLUG_PATH_ALIASES[normalized];
+    }
+    return `/${slug}`;
   }
 
   const typePath = PAGE_TYPE_PATHS[page.pageType];
   if (typePath && typePath !== '/') return typePath;
 
-  return slug ? `/${slug}` : '/';
+  return '/';
 }
 
 function normalizePageSlug(slug?: string): string {
@@ -156,7 +159,7 @@ export function getTestimonialsNavItem(pages?: Page[]): HeaderNavItem {
   return {
     id: cmsPage?._id ?? 'nav-testimonials',
     name: cmsPage?.name?.trim() || 'Testimonials',
-    href: TESTIMONIALS_ROUTE,
+    href: cmsPage ? getPageHref(cmsPage) : TESTIMONIALS_ROUTE,
   };
 }
 
@@ -178,67 +181,34 @@ export type HeaderNavLink = {
   href: string;
 };
 
-/** Home-section anchors for one-page template navigation. */
-const PAGE_TYPE_HOME_HASH: Partial<Record<Page['pageType'], string>> = {
-  home: '/',
-  about: '/#about',
-  'service-list': '/#services',
-  'project-detail': '/#projects',
-  'blog-list': '/#blog',
-  contact: '/#contact',
-};
-
-const SLUG_HOME_HASH: Record<string, string> = {
-  testimonials: '/#testimonials',
-  gallery: '/#gallery',
-  faq: '/#faq',
-};
-
-/** Resolves header link target — prefers home section anchors on the one-page template. */
+/** Header links use the same CMS slug routes as the rest of the site. */
 export function getHeaderPageHref(page: Page): string {
-  const slug = normalizePageSlug(page.slug);
-  if (slug && SLUG_HOME_HASH[slug]) return SLUG_HOME_HASH[slug];
-  if (isTestimonialsPage(page)) return '/#testimonials';
-
-  const typeHash = PAGE_TYPE_HOME_HASH[page.pageType];
-  if (typeHash) return typeHash;
-
   return getPageHref(page);
 }
 
-const HEADER_PAGE_TYPE_ORDER = [
-  'home',
-  'about',
-  'service-list',
-  'project-detail',
-  'blog-list',
-  'testimonials',
-] as const;
-
-function orderHeaderPages(pages: Page[]): Page[] {
-  const ordered: Page[] = [];
-  const seen = new Set<string>();
-
-  for (const type of HEADER_PAGE_TYPE_ORDER) {
-    const page =
-      type === 'testimonials'
-        ? pages.find((p) => isTestimonialsPage(p))
-        : pages.find((p) => p.pageType === type);
-    if (page && !seen.has(page._id)) {
-      ordered.push(page);
-      seen.add(page._id);
-    }
-  }
-
-  for (const page of pages) {
-    if (!seen.has(page._id)) {
-      ordered.push(page);
-      seen.add(page._id);
-    }
-  }
-
-  return ordered;
-}
+const PRIMARY_HEADER_NAV: Array<{
+  pageType?: Page['pageType'];
+  matchTestimonials?: boolean;
+  defaultLabel: string;
+  defaultHref: string;
+  defaultId: string;
+}> = [
+  { pageType: 'home', defaultLabel: 'Home', defaultHref: '/', defaultId: 'nav-home' },
+  { pageType: 'about', defaultLabel: 'About', defaultHref: '/about-us', defaultId: 'nav-about' },
+  {
+    pageType: 'service-list',
+    defaultLabel: 'Services',
+    defaultHref: '/services',
+    defaultId: 'nav-services',
+  },
+  {
+    matchTestimonials: true,
+    defaultLabel: 'Testimonials',
+    defaultHref: TESTIMONIALS_ROUTE,
+    defaultId: 'nav-testimonials',
+  },
+  { pageType: 'contact', defaultLabel: 'Contact', defaultHref: '/contact-us', defaultId: 'nav-contact' },
+];
 
 function getPublishedHeaderPages(pages?: Page[]): Page[] {
   return (
@@ -259,26 +229,30 @@ export function getHeaderNavLinks(pages?: Page[]): {
 } {
   const published = getPublishedHeaderPages(pages);
 
-  const contactPage = published.find((p) => p.pageType === 'contact');
-  const contactNav: HeaderNavLink = {
-    id: contactPage?._id ?? 'nav-contact',
-    label: contactPage?.name?.trim() || 'Contact',
-    href: contactPage ? getHeaderPageHref(contactPage) : '/#contact',
-  };
+  const mainNavLinks: HeaderNavLink[] = PRIMARY_HEADER_NAV.map((item) => {
+    const page = item.matchTestimonials
+      ? findTestimonialsPage(published) ?? published.find((p) => isTestimonialsPage(p))
+      : item.pageType
+        ? published.find((p) => p.pageType === item.pageType)
+        : undefined;
 
-  const nonContact = published.filter((p) => p.pageType !== 'contact');
-  const ordered = orderHeaderPages(nonContact);
-
-  const toLink = (page: Page): HeaderNavLink => ({
-    id: page._id,
-    label: page.name.trim(),
-    href: getHeaderPageHref(page),
+    return {
+      id: page?._id ?? item.defaultId,
+      label: page?.name?.trim() || item.defaultLabel,
+      href: page ? getHeaderPageHref(page) : item.defaultHref,
+    };
   });
 
-  const mainNavLinks = ordered.map(toLink);
-  const mobileNavLinks = mainNavLinks;
+  const contactPage = published.find((p) => p.pageType === 'contact');
+  const contactNav: HeaderNavLink = contactPage
+    ? {
+        id: contactPage._id,
+        label: contactPage.name.trim(),
+        href: getPageHref(contactPage),
+      }
+    : mainNavLinks[mainNavLinks.length - 1];
 
-  return { mainNavLinks, mobileNavLinks, contactNav };
+  return { mainNavLinks, mobileNavLinks: mainNavLinks, contactNav };
 }
 
 export type HeaderNavItem = {
@@ -362,8 +336,13 @@ const FOOTER_PAGE_TYPE_ORDER: Page['pageType'][] = [
 /** Extra app routes when no dedicated CMS page exists in the list. */
 const EXTRA_FOOTER_NAV: { slug: string; href: string; defaultName: string }[] = [
   { slug: 'testimonials', href: TESTIMONIALS_ROUTE, defaultName: 'Testimonials' },
-  { slug: 'gallery', href: '/gallery', defaultName: 'Gallery' },
 ];
+
+function isGalleryPage(page: Page): boolean {
+  const slug = normalizePageSlug(page.slug);
+  const name = (page.name || '').trim().toLowerCase();
+  return slug === 'gallery' || name === 'gallery' || getPageHref(page) === '/gallery';
+}
 
 /** All published pages for footer Explore — same on every route (ignores per-page footer link overrides). */
 export function getFooterNavLinks(pages?: Page[]): FooterNavLink[] {
@@ -396,6 +375,7 @@ export function getFooterNavLinks(pages?: Page[]): FooterNavLink[] {
   const links: FooterNavLink[] = [];
 
   for (const page of orderedPages) {
+    if (isGalleryPage(page)) continue;
     const href = getPageHref(page);
     if (seenHrefs.has(href)) continue;
     seenHrefs.add(href);

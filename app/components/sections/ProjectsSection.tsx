@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import Link from 'next/link';
 import type { Page, Project } from '@/app/lib/types';
 import { useWebBuilder } from '@/app/providers/WebBuilderProvider';
@@ -8,7 +8,7 @@ import { getPageHref } from '@/app/lib/siteContent';
 import { tiptapToText } from '@/app/lib/seo';
 import { cn, getImageSrc } from '@/app/lib/utils';
 import { OptimizedImage, IMAGE_SIZES } from '@/app/components/ui/OptimizedImage';
-import { useScrollAnimation, useStaggeredAnimation } from '@/hooks/useScrollAnimation';
+import { useStaggeredAnimation } from '@/hooks/useScrollAnimation';
 
 interface ProjectsSectionProps {
   projectSection?: Page['projectSection'];
@@ -119,97 +119,38 @@ function mapProjectCard(item: DisplayItem, index: number): ProjectCard | null {
 
 function ProjectCardInner({
   card,
-  index,
   isVisible,
-  featured = false,
 }: {
   card: ProjectCard;
   index: number;
   isVisible: boolean;
-  featured?: boolean;
 }) {
-  const [hovered, setHovered] = useState(false);
-
   return (
-    <article
-      className={cn(
-        'group relative overflow-hidden rounded-2xl border wb-border-on-light transition-all duration-700 ease-out',
-        featured ? 'min-h-[420px] sm:min-h-[480px]' : 'min-h-[280px] sm:min-h-[320px]',
-        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
-      )}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      {card.imageUrl ? (
-        <OptimizedImage
-          src={card.imageUrl}
-          alt={card.imageAlt}
-          fill
-          className={cn(
-            'object-cover transition-transform duration-[1.2s] ease-out',
-            hovered ? 'scale-110' : 'scale-100'
-          )}
-          sizes={featured ? IMAGE_SIZES.fullWidth : IMAGE_SIZES.card}
-        />
-      ) : (
-        <div className="absolute inset-0 bg-[var(--wb-section-bg-light)]" />
-      )}
-
-      <div
-        className={cn(
-          'absolute inset-0 transition-all duration-500',
-          hovered ? 'bg-black/60' : 'bg-gradient-to-t from-black/70 via-black/20 to-transparent'
+    <article className={cn('hg-service-card', isVisible ? 'opacity-100' : 'opacity-0')}>
+      <div className="relative aspect-[4/3] overflow-hidden">
+        {card.imageUrl ? (
+          <OptimizedImage
+            src={card.imageUrl}
+            alt={card.imageAlt}
+            fill
+            className="object-cover"
+            sizes={IMAGE_SIZES.card}
+          />
+        ) : (
+          <div className="absolute inset-0 bg-[var(--wb-page-bg)]" />
         )}
-      />
-
-      {card.year && (
-        <span className="absolute top-4 right-4 rounded-full border wb-border-on-dark px-3 py-1 text-[10px] font-bold uppercase tracking-widest wb-text-on-dark backdrop-blur-sm">
-          {card.year}
-        </span>
-      )}
-
-      <div
-        className={cn(
-          'absolute inset-x-0 bottom-0 p-5 sm:p-6 lg:p-8 transition-all duration-500 ease-out wb-overlay-dark',
-          hovered ? 'translate-y-0' : 'translate-y-2'
+      </div>
+      <div className="p-5">
+        {card.year && (
+          <p className="text-xs text-[var(--wb-text-secondary)] mb-1">{card.year}</p>
         )}
-      >
-        <span className="section-label mb-2 wb-text-on-dark-secondary">
-          Project {String(index + 1).padStart(2, '0')}
-        </span>
-        <h3
-          className={cn(
-            'font-heading font-bold wb-text-on-dark transition-all duration-500',
-            featured ? 'text-2xl sm:text-3xl lg:text-4xl' : 'text-lg sm:text-xl'
-          )}
-        >
-          {card.title}
-        </h3>
+        <h3 className="font-bold text-[var(--wb-text-main)]">{card.title}</h3>
         {card.description && (
-          <p
-            className={cn(
-              'mt-3 text-sm leading-relaxed wb-text-on-dark-secondary transition-all duration-500 overflow-hidden',
-              hovered || featured ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0 sm:max-h-16 sm:opacity-80'
-            )}
-          >
-            {card.description.length > 160
-              ? `${card.description.slice(0, 160)}…`
-              : card.description}
+          <p className="text-sm text-[var(--wb-text-secondary)] mt-2 line-clamp-2">
+            {card.description}
           </p>
         )}
-        {card.href && (
-          <span
-            className={cn(
-              'mt-4 inline-flex items-center gap-2 text-sm font-medium wb-text-on-dark transition-all duration-500',
-              hovered ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-2 sm:opacity-70 sm:translate-x-0'
-            )}
-          >
-            View project
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
-          </span>
-        )}
+        {card.href && <span className="hg-learn-more">View Project</span>}
       </div>
     </article>
   );
@@ -281,104 +222,54 @@ export function ProjectsSection({
     return projectPage ? getPageHref(projectPage) : '/project-detail';
   }, [pages]);
 
-  const { ref: headerRef, isVisible: headerVisible } =
-    useScrollAnimation<HTMLDivElement>({ threshold: 0.1 });
   const { ref: gridRef, visibleItems } = useStaggeredAnimation(cards.length, 120);
 
   if (!sectionData.enabled) return null;
   if (!cards.length && !hasTitle && !hasDescription) return null;
 
-  const [featured, ...rest] = cards;
-
   return (
-    <section
-      id="projects"
-      className={cn('relative py-12 lg:py-24 overflow-hidden wb-surface-page', className)}
-    >
-      <div className="container mx-auto px-6 lg:px-10 xl:px-14 relative z-10">
-        <div
-          ref={headerRef}
-          className={`flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-10 lg:mb-14 transition-all duration-1000 ${
-            headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-          }`}
-        >
-          <div>
-            <span className="section-label">Featured Work</span>
-            <h2 className="section-heading-lg max-w-2xl">{resolvedTitle}</h2>
-          </div>
-          {resolvedDescription && (
-            <p className="section-desc max-w-md lg:max-w-sm lg:text-right">{resolvedDescription}</p>
-          )}
-        </div>
+    <section id="projects" className={cn('hg-section wb-surface-page', className)}>
+      <div className="container mx-auto px-4 lg:px-8">
+        <h2 className="hg-section-title">{resolvedTitle}</h2>
+        {resolvedDescription && (
+          <p className="hg-section-desc max-w-2xl">
+            {resolvedDescription}
+          </p>
+        )}
 
         {cards.length > 0 ? (
-          <div ref={gridRef}>
-            {featured && (
-              <div className="mb-5 sm:mb-6">
-                {featured.href ? (
-                  <Link href={featured.href} className="block no-underline">
-                    <ProjectCardInner
-                      card={featured}
-                      index={0}
-                      isVisible={visibleItems.includes(0)}
-                      featured
-                    />
-                  </Link>
-                ) : (
-                  <ProjectCardInner
-                    card={featured}
-                    index={0}
-                    isVisible={visibleItems.includes(0)}
-                    featured
-                  />
-                )}
-              </div>
-            )}
-
-            {rest.length > 0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-                {rest.map((card, i) => {
-                  const index = i + 1;
-                  const inner = (
-                    <ProjectCardInner
-                      card={card}
-                      index={index}
-                      isVisible={visibleItems.includes(index)}
-                    />
-                  );
-
-                  return (
-                    <div key={card.key}>
-                      {card.href ? (
-                        <Link href={card.href} className="block no-underline">
-                          {inner}
-                        </Link>
-                      ) : (
-                        inner
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
+          <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {cards.map((card, index) => {
+              const inner = (
+                <ProjectCardInner
+                  card={card}
+                  index={index}
+                  isVisible={visibleItems.includes(index)}
+                />
+              );
+              return (
+                <div key={card.key}>
+                  {card.href ? (
+                    <Link href={card.href} className="block no-underline">
+                      {inner}
+                    </Link>
+                  ) : (
+                    inner
+                  )}
+                </div>
+              );
+            })}
           </div>
         ) : (
-          <p className="section-desc text-center">
+          <p className="text-center text-[var(--wb-text-secondary)]">
             No published projects yet. Add projects in the builder to show them here.
           </p>
         )}
 
         {showViewAllLink && cards.length > 0 && (
-          <div
-            className={`mt-10 flex justify-center transition-all duration-1000 delay-300 ${
-              headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-            }`}
-          >
-            <Link href={projectsHref} className="btn-pill">
+          <div className="mt-8 flex justify-center">
+            <Link href={projectsHref} className="hg-btn">
               View All Projects
-              <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
             </Link>
           </div>
         )}
