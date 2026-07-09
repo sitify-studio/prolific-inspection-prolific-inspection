@@ -118,6 +118,8 @@ export default function HomeClient() {
           companyDetailSection={displayPage.companyDetailSection}
           ctaSection={displayPage.ctaSection}
           page={displayPage}
+          servicesLimit={3}
+          showViewAllLink
         />
         <AboutSection aboutSection={displayPage.aboutSection} page={displayPage} />
         <CTASection ctaSection={displayPage.ctaSection} />

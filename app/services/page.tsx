@@ -99,7 +99,11 @@ export default function ServicesPage() {
 
       <main>
         <HeroSection hero={displayPage.hero} page={displayPage} />
-        <ServicesSection servicesSection={displayPage.servicesSection} />
+        <ServicesSection
+          servicesSection={displayPage.servicesSection}
+          showAllServices
+          showViewAllLink={false}
+        />
       </main>
 
       <Footer />

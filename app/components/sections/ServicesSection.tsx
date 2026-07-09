@@ -8,6 +8,7 @@ import { useWebBuilder } from '@/app/providers/WebBuilderProvider';
 import { tiptapToText } from '@/app/lib/seo';
 import { cn, getImageSrc } from '@/app/lib/utils';
 import { resolveServiceSlug } from '@/app/lib/serviceAreaSlugs';
+import { getPageHref } from '@/app/lib/siteContent';
 
 interface ServicesSectionProps {
   servicesSection?: Page['servicesSection'];
@@ -15,6 +16,9 @@ interface ServicesSectionProps {
   ctaSection?: Page['ctaSection'];
   page?: Page | null;
   className?: string;
+  servicesLimit?: number;
+  showViewAllLink?: boolean;
+  showAllServices?: boolean;
 }
 
 type DisplayService = {
@@ -97,20 +101,42 @@ function ServiceIconFallback({ name }: { name: string }) {
   );
 }
 
-export function ServicesSection({ servicesSection, className }: ServicesSectionProps) {
-  const { services: allServices } = useWebBuilder();
+export function ServicesSection({
+  servicesSection,
+  className,
+  servicesLimit,
+  showViewAllLink = false,
+  showAllServices = false,
+}: ServicesSectionProps) {
+  const { services: allServices, pages } = useWebBuilder();
 
-  const services = useMemo(() => {
+  const { services, hasMoreServices } = useMemo(() => {
+    const published = allServices.filter((s) => s.status === 'published');
     const ids = servicesSection?.serviceIds ?? [];
     const selected =
-      ids.length > 0
-        ? ids
+      showAllServices || ids.length === 0
+        ? published
+        : ids
             .map((id) => allServices.find((s) => s._id === id))
-            .filter((s): s is Service => Boolean(s))
-        : allServices.filter((s) => s.status === 'published');
+            .filter((s): s is Service => Boolean(s));
 
-    return selected.map(mapServiceToDisplay);
-  }, [servicesSection?.serviceIds, allServices]);
+    const mapped = selected.map(mapServiceToDisplay);
+    const limited =
+      typeof servicesLimit === 'number' && servicesLimit > 0
+        ? mapped.slice(0, servicesLimit)
+        : mapped;
+
+    const moreAvailable = showAllServices
+      ? false
+      : published.length > limited.length || mapped.length > limited.length;
+
+    return { services: limited, hasMoreServices: moreAvailable };
+  }, [servicesSection?.serviceIds, allServices, servicesLimit, showAllServices]);
+
+  const servicesHref = useMemo(() => {
+    const servicesPage = pages.find((p) => p.pageType === 'service-list');
+    return servicesPage ? getPageHref(servicesPage) : '/services';
+  }, [pages]);
 
   const title = useMemo(
     () => tiptapToText(servicesSection?.title) || 'Our Inspection Services',
@@ -163,6 +189,14 @@ export function ServicesSection({ servicesSection, className }: ServicesSectionP
             </Link>
           ))}
         </div>
+
+        {showViewAllLink && services.length > 0 && hasMoreServices && (
+          <div className="mt-8 flex justify-center">
+            <Link href={servicesHref} className="hg-btn">
+              See More Services
+            </Link>
+          </div>
+        )}
       </div>
     </section>
   );

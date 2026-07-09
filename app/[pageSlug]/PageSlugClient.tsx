@@ -103,7 +103,11 @@ export default function PageSlugClient({ pageSlug: pageSlugProp }: PageSlugClien
           <>
             <HeroSection hero={page?.hero} />
             <AboutSection aboutSection={page?.aboutSection} />
-            <ServicesSection servicesSection={page?.servicesSection} />
+            <ServicesSection
+              servicesSection={page?.servicesSection}
+              servicesLimit={3}
+              showViewAllLink
+            />
             <GallerySection gallerySection={page?.gallerySection} />
             <TestimonialsSection testimonialsSection={page?.testimonialsSection} />
             <FAQSection faqSection={page?.faqSection} />
@@ -141,7 +145,11 @@ export default function PageSlugClient({ pageSlug: pageSlugProp }: PageSlugClien
         {pageType === 'service-list' && (
           <>
             <HeroSection hero={page?.hero} />
-            <ServicesSection servicesSection={page?.servicesSection} />
+            <ServicesSection
+              servicesSection={page?.servicesSection}
+              showAllServices
+              showViewAllLink={false}
+            />
           </>
         )}
 
