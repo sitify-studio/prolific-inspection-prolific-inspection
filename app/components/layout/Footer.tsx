@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useMemo } from 'react';
 import { useWebBuilder } from '@/app/providers/WebBuilderProvider';
-import { getBrandName, getFooterNavLinks, getPageHref } from '@/app/lib/siteContent';
+import { getBrandName, getFooterNavLinks } from '@/app/lib/siteContent';
 import { getImageSrc } from '@/app/lib/utils';
 import { tiptapToText } from '@/app/lib/seo';
 
@@ -118,11 +118,6 @@ export function Footer() {
     return ['Corporate Office:', address.street, tail].filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
   }, [site?.business?.address]);
 
-  const contactHref = useMemo(() => {
-    const contactPage = pages?.find((p) => p.pageType === 'contact');
-    return contactPage ? getPageHref(contactPage) : '/contact-us';
-  }, [pages]);
-
   return (
     <footer id="footer" className="hg-footer">
       <div className="hg-footer-main">
@@ -177,38 +172,26 @@ export function Footer() {
       <div className="hg-footer-bottom">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="hg-footer-bottom-inner">
-            <div className="hg-footer-bottom-left">
-              <span>{copyrightText}</span>
-              <span className="hg-footer-bottom-sep" aria-hidden>|</span>
-              <a
-                href={BRAND_BOOSTER_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:opacity-85 transition-opacity"
-              >
-                US Brand Booster
-              </a>
-              {corporateOffice && (
-                <>
-                  <span className="hg-footer-bottom-sep" aria-hidden>|</span>
-                  <span>{corporateOffice}</span>
-                </>
-              )}
-              <span className="hg-footer-bottom-sep" aria-hidden>|</span>
-              <Link href="/sitemap.xml">Sitemap</Link>
-              <span className="hg-footer-bottom-sep" aria-hidden>|</span>
-              <Link href="/privacy-policy">Privacy Policy</Link>
-            </div>
-
-            <Link href={contactHref} className="hg-footer-live-chat">
-              Live Chat
-              <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden>
-                <path
-                  fill="currentColor"
-                  d="M4 5h16a2 2 0 012 2v8a2 2 0 01-2 2h-5.4L8.8 20.3A1 1 0 017 19.4V17H4a2 2 0 01-2-2V7a2 2 0 012-2z"
-                />
-              </svg>
-            </Link>
+            <span>{copyrightText}</span>
+            <span className="hg-footer-bottom-sep" aria-hidden>|</span>
+            <a
+              href={BRAND_BOOSTER_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:opacity-85 transition-opacity"
+            >
+              US Brand Booster
+            </a>
+            {corporateOffice && (
+              <>
+                <span className="hg-footer-bottom-sep" aria-hidden>|</span>
+                <span>{corporateOffice}</span>
+              </>
+            )}
+            <span className="hg-footer-bottom-sep" aria-hidden>|</span>
+            <Link href="/sitemap.xml">Sitemap</Link>
+            <span className="hg-footer-bottom-sep" aria-hidden>|</span>
+            <Link href="/privacy-policy">Privacy Policy</Link>
           </div>
         </div>
       </div>

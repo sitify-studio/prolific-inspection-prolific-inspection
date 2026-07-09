@@ -6,7 +6,7 @@ import { usePrefersReducedMotion } from '@/app/hooks/usePrefersReducedMotion';
 import { ensureGsapScroll, gsap, refreshScrollLayout } from '@/app/lib/gsap-scroll';
 
 const SECTION_SELECTOR =
-  'main section, main .hg-section, main .hg-testimonials-section, main .hg-download-app-section';
+  'main section:not(#cta):not(#contact), main .hg-section:not(#cta):not(#contact), main .hg-testimonials-section, main .hg-download-app-section';
 
 const TEXT_REVEAL_SELECTOR = [
   '.hg-section-title',
@@ -25,6 +25,10 @@ const TEXT_REVEAL_SELECTOR = [
   '.hg-testimonials-author',
   '.hg-hero-subtitle',
   '#about li',
+  '.hg-contact-info-title',
+  '.hg-contact-info-label',
+  '.hg-contact-hours-day',
+  '.hg-contact-hours-time',
 ].join(', ');
 
 const BLOCK_REVEAL_SELECTOR = [
@@ -37,7 +41,7 @@ const BLOCK_REVEAL_SELECTOR = [
   '.hg-satisfaction-badge',
   '.hg-company-detail-certs',
   '#about [class*="aspect-"]',
-  '#contact .rounded.p-5',
+  '.hg-contact-map-side',
   '#gallery button',
   '#projects article',
 ].join(', ');
