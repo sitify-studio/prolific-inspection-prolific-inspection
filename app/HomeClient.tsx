@@ -4,7 +4,6 @@ import { useWebBuilder } from '@/app/providers/WebBuilderProvider';
 import { Page } from '@/app/lib/types';
 import { Footer } from '@/app/components/layout/Footer';
 import { HeroSection } from '@/app/components/sections/HeroSection';
-import { AboutSection } from '@/app/components/sections/AboutSection';
 import { ServicesSection } from '@/app/components/sections/ServicesSection';
 import { TestimonialsSection } from '@/app/components/sections/TestimonialsSection';
 import { FAQSection } from '@/app/components/sections/FAQSection';
@@ -13,7 +12,6 @@ import { OneCompanySection } from '@/app/components/sections/OneCompanySection';
 import { CompanyDetailSection } from '@/app/components/sections/CompanyDetailSection';
 import { ContactSection } from './components/sections/ContactSection';
 import { CTASection } from '@/app/components/sections/CTASection';
-import { GallerySection } from '@/app/components/sections/GallerySection';
 import { getThemeColors } from '@/app/lib/themeBuilder';
 
 export default function HomeClient() {
@@ -116,13 +114,11 @@ export default function HomeClient() {
         />
         <WhyChooseUsSection whyChooseUsSection={displayPage.whyChooseUsSection} />
         <OneCompanySection page={displayPage} />
-        <AboutSection aboutSection={displayPage.aboutSection} page={displayPage} />
-        <TestimonialsSection testimonialsSection={displayPage.testimonialsSection} />
-        <CompanyDetailSection companyDetailSection={displayPage.companyDetailSection} />
         <CTASection ctaSection={displayPage.ctaSection} />
-        <GallerySection gallerySection={displayPage.gallerySection} />
+        <CompanyDetailSection companyDetailSection={displayPage.companyDetailSection} />
         <FAQSection faqSection={displayPage.faqSection} />
         <ContactSection contactSection={displayPage.contactSection} />
+        <TestimonialsSection testimonialsSection={displayPage.testimonialsSection} />
       </main>
       <Footer />
     </div>
