@@ -4,9 +4,10 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useMemo } from 'react';
 import { useWebBuilder } from '@/app/providers/WebBuilderProvider';
-import { getBrandName, getFooterNavLinks } from '@/app/lib/siteContent';
+import { getBrandName, getFooterNavLinks, hasFooterDescriptionContent } from '@/app/lib/siteContent';
 import { getImageSrc } from '@/app/lib/utils';
 import { tiptapToText } from '@/app/lib/seo';
+import { TiptapRenderer } from '@/app/components/ui/TiptapRenderer';
 
 type SocialPlatform = 'facebook' | 'instagram' | 'X' | 'youtube' | 'linkedin';
 
@@ -102,6 +103,17 @@ export function Footer() {
 
   const contractorLicense = useMemo(() => extractContractorLicense(site), [site]);
 
+  const footerDescription = useMemo(() => {
+    const content = site?.footer?.description;
+    if (!hasFooterDescriptionContent(content)) return null;
+    return content;
+  }, [site?.footer?.description]);
+
+  const footerDescriptionText = useMemo(
+    () => (footerDescription ? tiptapToText(footerDescription).trim() : ''),
+    [footerDescription]
+  );
+
   const copyrightText = useMemo(() => {
     const fromCms = tiptapToText(site?.footer?.copyright);
     if (fromCms && !fromCms.toLowerCase().includes('brand booster')) {
@@ -133,6 +145,15 @@ export function Footer() {
                   className="h-14 w-auto object-contain"
                 />
               </Link>
+              {footerDescription && footerDescriptionText && (
+                <div className="hg-footer-description">
+                  {typeof footerDescription === 'string' ? (
+                    <p>{footerDescriptionText}</p>
+                  ) : (
+                    <TiptapRenderer content={footerDescription} />
+                  )}
+                </div>
+              )}
               {contractorLicense && (
                 <p className="hg-footer-license">Contractor Lic #{contractorLicense}</p>
               )}
