@@ -110,31 +110,52 @@ export function ServicesSection({
 
         <div className="gb-offerings-grid">
           {services.map((service) => (
-            <Link key={service.id} href={`/service/${service.slug}`} className="gb-offering-card">
-              {service.imageUrl ? (
-                <div className="gb-offering-thumb">
+            <Link
+              key={service.id}
+              href={`/service/${service.slug}`}
+              className="gb-offering-card"
+            >
+              <div className="gb-offering-media">
+                {service.imageUrl ? (
                   <Image
                     src={service.imageUrl}
                     alt=""
                     fill
-                    sizes="(max-width: 768px) 100vw, 33vw"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     className="object-cover"
                   />
-                </div>
-              ) : (
-                <svg viewBox="0 0 24 24" className="gb-card-icon" fill="none" aria-hidden>
-                  <path
-                    d="M4 12l8-7 8 7v8H4v-8z"
-                    stroke="currentColor"
-                    strokeWidth="1.75"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              )}
-              <h3 className="gb-offering-title">{service.name}</h3>
-              {service.description ? (
-                <p className="gb-offering-desc">{service.description}</p>
-              ) : null}
+                ) : (
+                  <div className="gb-offering-media-fallback" aria-hidden>
+                    <svg viewBox="0 0 24 24" className="gb-card-icon" fill="none">
+                      <path
+                        d="M4 12l8-7 8 7v8H4v-8z"
+                        stroke="currentColor"
+                        strokeWidth="1.75"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+                )}
+              </div>
+
+              <div className="gb-offering-body">
+                <h3 className="gb-offering-title">{service.name}</h3>
+                {service.description ? (
+                  <p className="gb-offering-desc">{service.description}</p>
+                ) : null}
+                <span className="gb-offering-link">
+                  Learn more
+                  <svg viewBox="0 0 20 20" fill="none" aria-hidden>
+                    <path
+                      d="M4 10h12m0 0l-4-4m4 4l-4 4"
+                      stroke="currentColor"
+                      strokeWidth="1.75"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </span>
+              </div>
             </Link>
           ))}
         </div>
@@ -142,7 +163,7 @@ export function ServicesSection({
         {showViewAllLink && hasMoreServices ? (
           <div className="gb-section-actions">
             <Link href={servicesHref} className="gb-btn-outline">
-              View all services
+              See more
             </Link>
           </div>
         ) : null}

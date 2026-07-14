@@ -4,7 +4,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useMemo } from 'react';
 import { useWebBuilder } from '@/app/providers/WebBuilderProvider';
-import { getBrandName, getFooterNavLinks, hasFooterDescriptionContent } from '@/app/lib/siteContent';
+import { getBrandName, getFooterNavLinks, getPageHref, hasFooterDescriptionContent } from '@/app/lib/siteContent';
+import { resolveServiceSlug } from '@/app/lib/serviceAreaSlugs';
 import { getImageSrc } from '@/app/lib/utils';
 import { tiptapToText } from '@/app/lib/seo';
 import { TiptapRenderer } from '@/app/components/ui/TiptapRenderer';
@@ -12,24 +13,6 @@ import { TiptapRenderer } from '@/app/components/ui/TiptapRenderer';
 type SocialPlatform = 'facebook' | 'instagram' | 'X' | 'youtube' | 'linkedin';
 
 const FOOTER_SOCIAL_ORDER: SocialPlatform[] = ['facebook', 'instagram', 'X', 'youtube', 'linkedin'];
-
-const BRAND_BOOSTER_URL = 'https://usbrandbooster.com/';
-
-function extractContractorLicense(site: ReturnType<typeof useWebBuilder>['site']): string | null {
-  const sources = [
-    tiptapToText(site?.footer?.description),
-    tiptapToText(site?.footer?.copyright),
-    site?.business?.tagline,
-    site?.business?.description ? tiptapToText(site.business.description) : '',
-  ].filter(Boolean) as string[];
-
-  for (const text of sources) {
-    const match = text.match(/(?:Contractor\s+)?Lic(?:ense)?\s*#?\s*([A-Za-z0-9-]+)/i);
-    if (match?.[1]) return match[1];
-  }
-
-  return null;
-}
 
 function SocialIcon({ platform }: { platform: SocialPlatform }) {
   switch (platform) {
@@ -82,7 +65,7 @@ function SocialIcon({ platform }: { platform: SocialPlatform }) {
 }
 
 export function Footer() {
-  const { site, pages } = useWebBuilder();
+  const { site, pages, services } = useWebBuilder();
 
   const businessName = getBrandName(site);
 
@@ -91,7 +74,18 @@ export function Footer() {
     return raw ? getImageSrc(raw) : '';
   }, [site?.footer?.logo?.url, site?.theme?.logoUrl]);
 
-  const navLinks = useMemo(() => getFooterNavLinks(pages), [pages]);
+  const exploreLinks = useMemo(() => getFooterNavLinks(pages), [pages]);
+
+  const serviceLinks = useMemo(() => {
+    return services
+      .filter((s) => s.status === 'published' && s.name?.trim())
+      .slice(0, 6)
+      .map((s) => ({
+        id: s._id,
+        label: s.name.trim(),
+        href: `/service/${resolveServiceSlug(s)}`,
+      }));
+  }, [services]);
 
   const socialLinks = useMemo(() => {
     if (site?.footer?.showSocialLinks === false) return [];
@@ -101,7 +95,10 @@ export function Footer() {
     ).filter((link): link is { platform: SocialPlatform; url: string } => Boolean(link));
   }, [site?.footer?.showSocialLinks, site?.socialLinks]);
 
-  const contractorLicense = useMemo(() => extractContractorLicense(site), [site]);
+  const contactHref = useMemo(() => {
+    const contactPage = pages.find((p) => p.pageType === 'contact');
+    return contactPage ? getPageHref(contactPage) : '/contact-us';
+  }, [pages]);
 
   const footerDescription = useMemo(() => {
     const content = site?.footer?.description;
@@ -120,105 +117,125 @@ export function Footer() {
       return fromCms.replace(/\s*Build by.*$/i, '').trim();
     }
     return businessName
-      ? `© ${new Date().getFullYear()} ${businessName}`
-      : `© ${new Date().getFullYear()}`;
+      ? `Copyright © ${new Date().getFullYear()}. ${businessName}. All rights reserved.`
+      : `Copyright © ${new Date().getFullYear()}. All rights reserved.`;
   }, [site?.footer?.copyright, businessName]);
 
-  const corporateOffice = useMemo(() => {
+  const addressLines = useMemo(() => {
     const address = site?.business?.address;
-    if (!address?.street && !address?.city) return '';
-    const cityStateZip = [address.city, address.state].filter(Boolean).join(', ');
-    const tail = [cityStateZip, address.zipCode].filter(Boolean).join(' ');
-    return [address.street, tail].filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
-  }, [site?.business?.address]);
+    if (!address) return [] as string[];
+    const lines: string[] = [];
+    if (businessName) lines.push(businessName);
+    if (address.street?.trim()) lines.push(address.street.trim());
+    const cityLine = [address.city, address.state].filter(Boolean).join(', ');
+    const withZip = [cityLine, address.zipCode].filter(Boolean).join(' ');
+    if (withZip) lines.push(withZip);
+    return lines;
+  }, [site?.business?.address, businessName]);
 
   return (
     <footer id="footer" className="gb-footer">
       <div className="gb-footer-main">
         <div className="gb-container">
-          <div className="gb-footer-brands">
+          <div className="gb-footer-grid">
             <div className="gb-footer-brand">
-              <Link href="/" className="inline-block">
+              <Link href="/" className="gb-footer-logo">
                 {logoSrc ? (
                   <Image
                     src={logoSrc}
                     alt={site?.footer?.logo?.altText?.trim() || businessName || 'Logo'}
                     width={220}
                     height={72}
-                    className="h-14 w-auto object-contain"
+                    className="gb-footer-logo-img"
                   />
                 ) : businessName ? (
                   <span className="gb-footer-brand-text">{businessName}</span>
                 ) : null}
               </Link>
-              {footerDescription && footerDescriptionText && (
-                <div className="hg-footer-description">
-                  {typeof footerDescription === 'string' ? (
-                    <p>{footerDescriptionText}</p>
-                  ) : (
-                    <TiptapRenderer content={footerDescription} />
-                  )}
+
+              {addressLines.length > 0 ? (
+                <address className="gb-footer-address">
+                  {addressLines.map((line) => (
+                    <span key={line}>{line}</span>
+                  ))}
+                </address>
+              ) : null}
+
+              {socialLinks.length > 0 ? (
+                <div className="gb-footer-socials">
+                  {socialLinks.map((link) => (
+                    <a
+                      key={link.platform}
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="gb-footer-social-link"
+                      aria-label={link.platform}
+                    >
+                      <SocialIcon platform={link.platform} />
+                    </a>
+                  ))}
                 </div>
-              )}
-              {contractorLicense && (
-                <p className="hg-footer-license">Contractor Lic #{contractorLicense}</p>
-              )}
+              ) : null}
             </div>
 
-            {socialLinks.length > 0 && (
-              <div className="hg-footer-socials">
-                {socialLinks.map((link) => (
-                  <a
-                    key={link.platform}
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hg-footer-social-link"
-                    aria-label={link.platform}
-                  >
-                    <SocialIcon platform={link.platform} />
-                  </a>
-                ))}
-              </div>
-            )}
-          </div>
+            {exploreLinks.length > 0 ? (
+              <nav className="gb-footer-col" aria-label="Explore">
+                <h3 className="gb-footer-col-title">Explore</h3>
+                <ul className="gb-footer-col-list">
+                  {exploreLinks.map((link) => (
+                    <li key={link.id}>
+                      <Link href={link.href}>{link.label}</Link>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            ) : null}
 
-          {navLinks.length > 0 && (
-            <nav className="hg-footer-nav" aria-label="Footer navigation">
-              {navLinks.map((link, index) => (
-                <span key={link.id} className="hg-footer-nav-item">
-                  {index > 0 && <span className="hg-footer-nav-sep" aria-hidden>|</span>}
-                  <Link href={link.href}>{link.label}</Link>
-                </span>
-              ))}
+            {serviceLinks.length > 0 ? (
+              <nav className="gb-footer-col" aria-label="Services">
+                <h3 className="gb-footer-col-title">Services</h3>
+                <ul className="gb-footer-col-list">
+                  {serviceLinks.map((link) => (
+                    <li key={link.id}>
+                      <Link href={link.href}>{link.label}</Link>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            ) : null}
+
+            <nav className="gb-footer-col" aria-label="Legal">
+              <h3 className="gb-footer-col-title">Legal</h3>
+              <ul className="gb-footer-col-list">
+                <li>
+                  <Link href="/privacy-policy">Privacy Policy</Link>
+                </li>
+                <li>
+                  <Link href="/sitemap.xml">Sitemap</Link>
+                </li>
+                <li>
+                  <Link href={contactHref}>Contact</Link>
+                </li>
+              </ul>
             </nav>
-          )}
+          </div>
         </div>
       </div>
 
-      <div className="hg-footer-bottom">
-        <div className="container mx-auto px-4 lg:px-8">
-          <div className="hg-footer-bottom-inner">
-            <span>{copyrightText}</span>
-            <span className="hg-footer-bottom-sep" aria-hidden>|</span>
-            <a
-              href={BRAND_BOOSTER_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:opacity-85 transition-opacity"
-            >
-              US Brand Booster
-            </a>
-            {corporateOffice && (
-              <>
-                <span className="hg-footer-bottom-sep" aria-hidden>|</span>
-                <span>{corporateOffice}</span>
-              </>
-            )}
-            <span className="hg-footer-bottom-sep" aria-hidden>|</span>
-            <Link href="/sitemap.xml">Sitemap</Link>
-            <span className="hg-footer-bottom-sep" aria-hidden>|</span>
-            <Link href="/privacy-policy">Privacy Policy</Link>
+      <div className="gb-footer-bottom">
+        <div className="gb-container">
+          <div className="gb-footer-bottom-inner">
+            <div className="gb-footer-fineprint">
+              {footerDescription && footerDescriptionText ? (
+                typeof footerDescription === 'string' ? (
+                  <p>{footerDescriptionText}</p>
+                ) : (
+                  <TiptapRenderer content={footerDescription} />
+                )
+              ) : null}
+            </div>
+            <p className="gb-footer-copyright">{copyrightText}</p>
           </div>
         </div>
       </div>

@@ -109,7 +109,11 @@ export default function PageSlugClient({ pageSlug: pageSlugProp }: PageSlugClien
               showViewAllLink
             />
             <GallerySection gallerySection={page?.gallerySection} />
-            <TestimonialsSection testimonialsSection={page?.testimonialsSection} />
+            <TestimonialsSection
+              testimonialsSection={page?.testimonialsSection}
+              limit={4}
+              showViewAllLink
+            />
             <FAQSection faqSection={page?.faqSection} />
             <ContactSection contactSection={page?.contactSection} />
             <BlogSection blogSection={page?.blogSection} />

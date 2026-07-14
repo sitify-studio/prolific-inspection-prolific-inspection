@@ -104,16 +104,21 @@ export default function HomeClient() {
     >
       <main>
         <HeroSection hero={displayPage.hero} page={displayPage} />
+        <AboutSection aboutSection={displayPage.aboutSection} page={displayPage} />
         <ServicesSection
           servicesSection={displayPage.servicesSection}
           page={displayPage}
-          servicesLimit={5}
+          servicesLimit={3}
+          showViewAllLink
         />
         <WhyChooseUsSection whyChooseUsSection={displayPage.whyChooseUsSection} />
-        <AboutSection aboutSection={displayPage.aboutSection} page={displayPage} />
         <CTASection ctaSection={displayPage.ctaSection} />
         <CompanyDetailSection companyDetailSection={displayPage.companyDetailSection} />
-        <TestimonialsSection testimonialsSection={displayPage.testimonialsSection} />
+        <TestimonialsSection
+          testimonialsSection={displayPage.testimonialsSection}
+          limit={4}
+          showViewAllLink
+        />
         <FAQSection faqSection={displayPage.faqSection} />
         <ContactSection contactSection={displayPage.contactSection} />
       </main>

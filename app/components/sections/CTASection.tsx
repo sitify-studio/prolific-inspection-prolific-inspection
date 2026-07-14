@@ -58,38 +58,30 @@ export function CTASection({ ctaSection, className }: CTASectionProps) {
       id="cta"
       className={cn('gb-cta', !image && 'gb-cta--no-media', className)}
     >
-      <div className="gb-cta-track">
-        <div className="gb-cta-sticky">
-          <div className="gb-cta-copy">
-            {heading ? <h2 className="gb-cta-title">{heading}</h2> : null}
-            {description ? <p className="gb-cta-desc">{description}</p> : null}
-            {ctaButton ? (
-              <a href={ctaButton.href} className="gb-btn-outline">
-                {ctaButton.label}
-              </a>
-            ) : null}
-          </div>
+      {image ? (
+        <div className="gb-cta-bg" aria-hidden>
+          <Image
+            src={image}
+            alt=""
+            fill
+            sizes="100vw"
+            quality={90}
+            className="gb-cta-image"
+          />
+          <div className="gb-cta-overlay" />
+        </div>
+      ) : null}
 
-          {image ? (
-            <div className="gb-cta-media">
-              <Image
-                src={image}
-                alt={heading || ''}
-                fill
-                sizes="(max-width: 1024px) 100vw, 45vw"
-                quality={90}
-                className="gb-cta-image"
-              />
-            </div>
+      <div className="gb-cta-inner">
+        <div className="gb-cta-copy">
+          {heading ? <h2 className="gb-cta-title">{heading}</h2> : null}
+          {description ? <p className="gb-cta-desc">{description}</p> : null}
+          {ctaButton ? (
+            <a href={ctaButton.href} className={cn('gb-btn-outline', image && 'gb-btn-outline-on-dark')}>
+              {ctaButton.label}
+            </a>
           ) : null}
         </div>
-
-        {image ? (
-          <div className="gb-cta-frame" aria-hidden>
-            <div className="gb-cta-border gb-cta-border--top" />
-            <div className="gb-cta-border gb-cta-border--bottom" />
-          </div>
-        ) : null}
       </div>
     </section>
   );

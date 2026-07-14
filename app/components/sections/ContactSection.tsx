@@ -1,11 +1,11 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { FormEvent, useMemo, useState } from 'react';
+import { Clock, MapPin, Phone } from 'lucide-react';
 import type { BusinessHours, Page } from '@/app/lib/types';
 import { useWebBuilder } from '@/app/providers/WebBuilderProvider';
 import { tiptapToText } from '@/app/lib/seo';
 import { cn } from '@/app/lib/utils';
-import { ContactSideForm } from '@/app/components/ui/ContactSideForm';
 
 const DAY_LABELS: Record<string, string> = {
   monday: 'Monday',
@@ -60,7 +60,10 @@ function formatDayHours(dayHours: BusinessHours, displayFormat?: string) {
 
 export function ContactSection({ contactSection, className }: ContactSectionProps) {
   const { site } = useWebBuilder();
-  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+  const [sendCopy, setSendCopy] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState('');
 
   const business = site?.business;
   const address = business?.address;
@@ -84,15 +87,16 @@ export function ContactSection({ contactSection, className }: ContactSectionProp
       const entry = businessHours.hours?.find((h) => h.day === day);
       return {
         day: DAY_LABELS[day],
-        hours: entry
-          ? formatDayHours(entry, businessHours.displayFormat)
-          : 'Closed',
+        hours: entry ? formatDayHours(entry, businessHours.displayFormat) : 'Closed',
       };
     });
   }, [businessHours]);
 
   const mapSrc = useMemo(() => {
-    if (site?.business?.coordinates?.latitude != null && site?.business?.coordinates?.longitude != null) {
+    if (
+      site?.business?.coordinates?.latitude != null &&
+      site?.business?.coordinates?.longitude != null
+    ) {
       return `https://maps.google.com/maps?q=${site.business.coordinates.latitude},${site.business.coordinates.longitude}&z=15&output=embed`;
     }
     if (addressLine) {
@@ -113,123 +117,206 @@ export function ContactSection({ contactSection, className }: ContactSectionProp
   const hasEmail = Boolean(business?.email?.trim());
   const hasHours = weeklyHours.length > 0;
   const hasContactDetails = hasAddress || hasPhone || hasEmail;
-  const hasInfo = showContactInfo && (hasContactDetails || hasHours);
-  const showInfoPanel = hasInfo || showForm;
+  const showHoursBlock = showContactInfo && hasHours;
+  const showContactBlock = showContactInfo && hasContactDetails;
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitMessage('');
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...formData,
+          sendCopy,
+          siteId: site?._id,
+          subject: `Contact Form - ${formData.name}`,
+        }),
+      });
+
+      if (response.ok) {
+        setSubmitMessage('Message sent successfully!');
+        setFormData({ name: '', email: '', message: '' });
+        setSendCopy(false);
+      } else {
+        setSubmitMessage('Failed to send. Please try again.');
+      }
+    } catch {
+      setSubmitMessage('Network error. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
-    <section
-      id="contact"
-      className={cn('hg-contact-section', !showInfoPanel && 'hg-contact-section--no-info', className)}
-    >
-      <ContactSideForm isOpen={isFormOpen} onClose={() => setIsFormOpen(false)} />
+    <section id="contact" className={cn('gb-contact-section', className)}>
+      {showMap ? (
+        <div className="gb-contact-map" aria-hidden={!mapSrc}>
+          {mapSrc ? (
+            <iframe
+              title="Office Location"
+              src={mapSrc}
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+          ) : (
+            <div className="gb-contact-map-fallback">Map not available</div>
+          )}
+        </div>
+      ) : (
+        <div className="gb-contact-map gb-contact-map--empty" aria-hidden />
+      )}
 
-      <div className="hg-contact-layout">
-        {showInfoPanel && (
-          <div className="hg-contact-info-side">
-            <div className="hg-contact-info-inner">
-              {resolvedTitle ? <h2 className="hg-contact-info-title">{resolvedTitle}</h2> : null}
-              <div className="hg-contact-accent" aria-hidden />
+      <div className="gb-container gb-contact-overlay">
+        <div className="gb-contact-card">
+          {resolvedTitle ? <h2 className="gb-contact-title">{resolvedTitle}</h2> : null}
 
-              {hasInfo && (
-                <div className="hg-contact-info-grids">
-                  {hasContactDetails && (
-                    <div className="hg-contact-info-grid">
-                      {hasAddress && (
-                        <div className="hg-contact-info-block">
-                          <h3 className="hg-contact-info-label">Address</h3>
-                          <address className="hg-contact-info-value not-italic">
-                            {address?.street && (
+          <div className="gb-contact-grid">
+            {showForm ? (
+              <form className="gb-contact-form" onSubmit={handleSubmit}>
+                <label className="gb-contact-field">
+                  <span className="sr-only">Name</span>
+                  <input
+                    type="text"
+                    name="name"
+                    required
+                    placeholder="Name"
+                    value={formData.name}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
+                    className="gb-contact-input"
+                  />
+                </label>
+
+                <label className="gb-contact-field">
+                  <span className="sr-only">Email address</span>
+                  <input
+                    type="email"
+                    name="email"
+                    required
+                    placeholder="Email address"
+                    value={formData.email}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
+                    className="gb-contact-input"
+                  />
+                </label>
+
+                <label className="gb-contact-field">
+                  <span className="sr-only">Message</span>
+                  <textarea
+                    name="message"
+                    required
+                    rows={5}
+                    placeholder="Message"
+                    value={formData.message}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, message: e.target.value }))
+                    }
+                    className="gb-contact-input gb-contact-textarea"
+                  />
+                </label>
+
+                <label className="gb-contact-copy">
+                  <input
+                    type="checkbox"
+                    checked={sendCopy}
+                    onChange={(e) => setSendCopy(e.target.checked)}
+                  />
+                  <span>Send me a copy of this message</span>
+                </label>
+
+                <button type="submit" className="gb-contact-submit" disabled={isSubmitting}>
+                  {isSubmitting ? 'Sending…' : 'Send'}
+                </button>
+
+                {submitMessage ? (
+                  <p className="gb-contact-status" role="status">
+                    {submitMessage}
+                  </p>
+                ) : null}
+              </form>
+            ) : null}
+
+            {(showHoursBlock || showContactBlock) && (
+              <div className="gb-contact-info">
+                {showHoursBlock ? (
+                  <div className="gb-contact-info-item">
+                    <span
+                      className="gb-contact-info-icon"
+                      style={{
+                        color: '#2563EB',
+                        backgroundColor: '#2563EB22',
+                        borderColor: '#2563EB',
+                      }}
+                      aria-hidden
+                    >
+                      <Clock color="#2563EB" strokeWidth={2.1} />
+                    </span>
+                    <div>
+                      <h3 className="gb-contact-info-heading">Business Hours</h3>
+                      <div className="gb-contact-hours">
+                        {weeklyHours.map((row) => (
+                          <div key={row.day} className="gb-contact-hours-row">
+                            <span>{row.day}</span>
+                            <span>{row.hours}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
+
+                {showContactBlock ? (
+                  <div className="gb-contact-info-item">
+                    <span
+                      className="gb-contact-info-icon"
+                      style={{
+                        color: '#059669',
+                        backgroundColor: '#05966922',
+                        borderColor: '#059669',
+                      }}
+                      aria-hidden
+                    >
+                      {hasPhone ? (
+                        <Phone color="#059669" strokeWidth={2.1} />
+                      ) : (
+                        <MapPin color="#059669" strokeWidth={2.1} />
+                      )}
+                    </span>
+                    <div>
+                      <h3 className="gb-contact-info-heading">Contact Info</h3>
+                      <div className="gb-contact-info-lines">
+                        {hasAddress ? (
+                          <address className="not-italic">
+                            {address?.street ? (
                               <>
                                 {address.street}
                                 <br />
                               </>
-                            )}
+                            ) : null}
                             {[address?.city, address?.state].filter(Boolean).join(', ')}
                             {address?.zipCode ? ` ${address.zipCode}` : ''}
                           </address>
-                        </div>
-                      )}
-
-                      {hasPhone && (
-                        <div className="hg-contact-info-block">
-                          <h3 className="hg-contact-info-label">Call Us</h3>
-                          <p className="hg-contact-info-value">
-                            <a href={`tel:${business!.phone!.replace(/\s/g, '')}`}>
-                              {business!.phone}
-                            </a>
-                          </p>
-                        </div>
-                      )}
-
-                      {hasEmail && (
-                        <div className="hg-contact-info-block">
-                          <h3 className="hg-contact-info-label">Email</h3>
-                          <p className="hg-contact-info-value">
-                            <a href={`mailto:${business!.email}`}>{business!.email}</a>
-                          </p>
-                        </div>
-                      )}
+                        ) : null}
+                        {hasPhone ? (
+                          <a href={`tel:${business!.phone!.replace(/\s/g, '')}`}>
+                            {business!.phone}
+                          </a>
+                        ) : null}
+                        {hasEmail ? (
+                          <a href={`mailto:${business!.email}`}>{business!.email}</a>
+                        ) : null}
+                      </div>
                     </div>
-                  )}
-
-                  {(hasHours || showForm) && (
-                    <div className="hg-contact-info-grid hg-contact-info-grid--hours">
-                      {hasHours && (
-                        <div className="hg-contact-info-block">
-                          <h3 className="hg-contact-info-label">Opening Hours</h3>
-                          <div className="hg-contact-hours-list">
-                            {weeklyHours.map((row) => (
-                              <div key={row.day} className="hg-contact-hours-row">
-                                <span className="hg-contact-hours-day">{row.day}</span>
-                                <span className="hg-contact-hours-time">{row.hours}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {showForm && (
-                        <button
-                          type="button"
-                          onClick={() => setIsFormOpen(true)}
-                          className="hg-btn hg-contact-message-btn"
-                        >
-                          Send Us a Message
-                        </button>
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {!hasInfo && showForm && (
-                <button
-                  type="button"
-                  onClick={() => setIsFormOpen(true)}
-                  className="hg-btn hg-contact-message-btn"
-                >
-                  Send Us a Message
-                </button>
-              )}
-            </div>
-          </div>
-        )}
-
-        {showMap && (
-          <div className="hg-contact-map-side">
-            {mapSrc ? (
-              <iframe
-                title="Office Location"
-                src={mapSrc}
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-              />
-            ) : (
-              <div className="hg-contact-map-fallback">Map not available</div>
+                  </div>
+                ) : null}
+              </div>
             )}
           </div>
-        )}
+        </div>
       </div>
     </section>
   );

@@ -1,16 +1,21 @@
 'use client';
 
 import React from 'react';
+import type { Page } from '@/app/lib/types';
 import { CompanyDetailSection } from '@/app/components/sections/CompanyDetailSection';
 
 interface ServiceDetailsProps {
-  details: unknown;
+  details: Page['companyDetailSection'] | unknown;
   className?: string;
 }
 
-/** Service area details — same hardcoded certifications layout as homepage. */
-export const ServiceDetails: React.FC<ServiceDetailsProps> = ({ className }) => {
-  return <CompanyDetailSection className={className} />;
+export const ServiceDetails: React.FC<ServiceDetailsProps> = ({ details, className }) => {
+  return (
+    <CompanyDetailSection
+      companyDetailSection={details as Page['companyDetailSection']}
+      className={className}
+    />
+  );
 };
 
 export default ServiceDetails;
