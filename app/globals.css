@@ -4337,6 +4337,13 @@ html.preloader-active::-webkit-scrollbar-thumb {
     position: absolute;
     inset: 0;
     z-index: 0;
+    overflow: hidden;
+  }
+
+  .gb-cta-bg-parallax {
+    position: absolute;
+    inset: -14% 0;
+    will-change: transform;
   }
 
   .gb-cta-image {
@@ -4344,21 +4351,166 @@ html.preloader-active::-webkit-scrollbar-thumb {
     object-position: center;
   }
 
+  @media (prefers-reduced-motion: reduce) {
+    .gb-cta-bg-parallax {
+      inset: 0;
+      will-change: auto;
+    }
+  }
+
   .gb-cta-overlay {
     position: absolute;
     inset: 0;
+    z-index: 1;
     background:
-      linear-gradient(
-        105deg,
+      radial-gradient(
+        90% 80% at 18% 50%,
         color-mix(in srgb, var(--wb-section-bg-dark) 78%, transparent) 0%,
-        color-mix(in srgb, var(--wb-section-bg-dark) 48%, transparent) 48%,
-        color-mix(in srgb, var(--wb-section-bg-dark) 28%, transparent) 100%
+        transparent 62%
+      ),
+      linear-gradient(
+        115deg,
+        color-mix(in srgb, var(--wb-section-bg-dark) 86%, transparent) 0%,
+        color-mix(in srgb, var(--wb-section-bg-dark) 52%, transparent) 46%,
+        color-mix(in srgb, var(--wb-primary) 42%, transparent) 100%
       );
+  }
+
+  .gb-cta-fx {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .gb-cta-fx-glow {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(8px);
+    mix-blend-mode: screen;
+  }
+
+  .gb-cta-fx-glow--a {
+    width: min(58vw, 28rem);
+    height: min(58vw, 28rem);
+    top: -20%;
+    right: -2%;
+    opacity: 0.9;
+    background: radial-gradient(
+      circle,
+      color-mix(in srgb, var(--wb-primary) 85%, transparent) 0%,
+      color-mix(in srgb, var(--wb-primary) 35%, transparent) 42%,
+      transparent 72%
+    );
+    animation: gb-cta-glow-drift 8s ease-in-out infinite alternate;
+  }
+
+  .gb-cta-fx-glow--b {
+    width: min(50vw, 24rem);
+    height: min(50vw, 24rem);
+    bottom: -24%;
+    left: 2%;
+    opacity: 0.75;
+    background: radial-gradient(
+      circle,
+      color-mix(in srgb, var(--wb-text-on-dark) 48%, transparent) 0%,
+      color-mix(in srgb, var(--wb-primary) 30%, transparent) 45%,
+      transparent 74%
+    );
+    animation: gb-cta-glow-drift 10s ease-in-out infinite alternate-reverse;
+  }
+
+  .gb-cta-fx-sheen {
+    position: absolute;
+    inset: -40% -20%;
+    background: linear-gradient(
+      115deg,
+      transparent 30%,
+      color-mix(in srgb, var(--wb-text-on-dark) 10%, transparent) 42%,
+      color-mix(in srgb, var(--wb-text-on-dark) 42%, transparent) 50%,
+      color-mix(in srgb, var(--wb-primary) 28%, transparent) 58%,
+      transparent 70%
+    );
+    transform: translateX(-35%) rotate(8deg);
+    animation: gb-cta-sheen 5.5s ease-in-out infinite;
+  }
+
+  .gb-cta-fx-grid {
+    position: absolute;
+    inset: 0;
+    opacity: 0.38;
+    background-image:
+      linear-gradient(color-mix(in srgb, var(--wb-text-on-dark) 34%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in srgb, var(--wb-text-on-dark) 34%, transparent) 1px, transparent 1px);
+    background-size: 2.5rem 2.5rem;
+    mask-image: radial-gradient(circle at 70% 40%, black 0%, transparent 78%);
+    animation: gb-cta-grid-pulse 5s ease-in-out infinite;
+  }
+
+  @keyframes gb-cta-glow-drift {
+    0% {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    100% {
+      transform: translate3d(-10%, 12%, 0) scale(1.18);
+    }
+  }
+
+  @keyframes gb-cta-sheen {
+    0%,
+    12% {
+      transform: translateX(-45%) rotate(8deg);
+      opacity: 0;
+    }
+    40% {
+      opacity: 1;
+    }
+    68%,
+    100% {
+      transform: translateX(48%) rotate(8deg);
+      opacity: 0;
+    }
+  }
+
+  @keyframes gb-cta-grid-pulse {
+    0%,
+    100% {
+      opacity: 0.28;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.5;
+      transform: scale(1.04);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gb-cta-fx-glow--a,
+    .gb-cta-fx-glow--b,
+    .gb-cta-fx-sheen,
+    .gb-cta-fx-grid {
+      animation: none;
+    }
+
+    .gb-cta-fx-glow--a,
+    .gb-cta-fx-glow--b {
+      opacity: 0.7;
+    }
+
+    .gb-cta-fx-sheen {
+      opacity: 0.28;
+      transform: none;
+    }
+
+    .gb-cta-fx-grid {
+      opacity: 0.32;
+    }
   }
 
   .gb-cta-inner {
     position: relative;
-    z-index: 1;
+    z-index: 3;
     display: flex;
     align-items: center;
     justify-content: center;
