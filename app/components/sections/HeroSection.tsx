@@ -66,6 +66,7 @@ export function HeroSection({ hero, page, className }: HeroSectionProps) {
   const reducedMotion = usePrefersReducedMotion();
   const sectionRef = useRef<HTMLElement>(null);
   const mediaInnerRef = useRef<HTMLDivElement>(null);
+  const overlayFxRef = useRef<HTMLDivElement>(null);
 
   const title = useMemo(() => tiptapToText(hero?.title), [hero?.title]);
   const description = useMemo(() => {
@@ -117,6 +118,7 @@ export function HeroSection({ hero, page, className }: HeroSectionProps) {
       if (reducedMotion) {
         gsap.set(reveals, { opacity: 1, y: 0 });
         if (mediaInnerRef.current) gsap.set(mediaInnerRef.current, { yPercent: 0, scale: 1 });
+        if (overlayFxRef.current) gsap.set(overlayFxRef.current, { opacity: 1 });
         return;
       }
 
@@ -150,6 +152,23 @@ export function HeroSection({ hero, page, className }: HeroSectionProps) {
           }
         );
       }
+
+      if (overlayFxRef.current && heroImage) {
+        gsap.fromTo(
+          overlayFxRef.current,
+          { opacity: 0.7 },
+          {
+            opacity: 1,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: 'top top',
+              end: 'bottom top',
+              scrub: 0.9,
+            },
+          }
+        );
+      }
     }, sectionRef);
 
     return () => ctx.revert();
@@ -175,6 +194,17 @@ export function HeroSection({ hero, page, className }: HeroSectionProps) {
               sizes="100vw"
               className="gb-hero-image"
             />
+          </div>
+          <div className="gb-hero-overlay" />
+          <div ref={overlayFxRef} className="gb-hero-fx" aria-hidden>
+            <span className="gb-hero-fx-wash" />
+            <span className="gb-hero-fx-beam gb-hero-fx-beam--1" />
+            <span className="gb-hero-fx-beam gb-hero-fx-beam--2" />
+            <span className="gb-hero-fx-beam gb-hero-fx-beam--3" />
+            <span className="gb-hero-fx-horizon" />
+            <span className="gb-hero-fx-dust gb-hero-fx-dust--a" />
+            <span className="gb-hero-fx-dust gb-hero-fx-dust--b" />
+            <span className="gb-hero-fx-vignette" />
           </div>
         </div>
       ) : null}

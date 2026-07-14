@@ -3586,10 +3586,246 @@ html.preloader-active::-webkit-scrollbar-thumb {
     object-position: center;
   }
 
+  .gb-hero-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background:
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--wb-section-bg-dark) 42%, transparent) 0%,
+        transparent 38%,
+        transparent 58%,
+        color-mix(in srgb, var(--wb-section-bg-dark) 55%, transparent) 100%
+      ),
+      linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--wb-section-bg-dark) 28%, transparent) 0%,
+        transparent 40%,
+        transparent 60%,
+        color-mix(in srgb, var(--wb-primary) 18%, transparent) 100%
+      );
+  }
+
+  .gb-hero-fx {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .gb-hero-fx-wash {
+    position: absolute;
+    inset: -20% -30%;
+    background: linear-gradient(
+      105deg,
+      transparent 30%,
+      color-mix(in srgb, var(--wb-primary) 22%, transparent) 46%,
+      color-mix(in srgb, var(--wb-text-on-dark) 28%, transparent) 52%,
+      transparent 68%
+    );
+    animation: gb-hero-wash-move 8s ease-in-out infinite;
+  }
+
+  .gb-hero-fx-beam {
+    position: absolute;
+    top: -18%;
+    bottom: -18%;
+    width: clamp(3.5rem, 9vw, 6.5rem);
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      color-mix(in srgb, var(--wb-text-on-dark) 28%, transparent) 28%,
+      color-mix(in srgb, var(--wb-primary) 52%, transparent) 52%,
+      color-mix(in srgb, var(--wb-text-on-dark) 18%, transparent) 78%,
+      transparent 100%
+    );
+    filter: blur(1.5px);
+    mix-blend-mode: soft-light;
+    opacity: 0.85;
+    will-change: transform, opacity;
+  }
+
+  .gb-hero-fx-beam--1 {
+    left: 8%;
+    animation: gb-hero-beam-drift-a 7s ease-in-out infinite;
+  }
+
+  .gb-hero-fx-beam--2 {
+    left: 42%;
+    width: clamp(2.5rem, 6vw, 4.5rem);
+    opacity: 0.7;
+    animation: gb-hero-beam-drift-b 9s ease-in-out infinite 0.8s;
+  }
+
+  .gb-hero-fx-beam--3 {
+    left: 72%;
+    width: clamp(3rem, 7vw, 5.25rem);
+    opacity: 0.78;
+    animation: gb-hero-beam-drift-a 8s ease-in-out infinite 1.6s reverse;
+  }
+
+  .gb-hero-fx-horizon {
+    position: absolute;
+    left: 6%;
+    right: 6%;
+    top: 56%;
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      color-mix(in srgb, var(--wb-text-on-dark) 55%, transparent) 24%,
+      color-mix(in srgb, var(--wb-primary) 80%, transparent) 50%,
+      color-mix(in srgb, var(--wb-text-on-dark) 55%, transparent) 76%,
+      transparent 100%
+    );
+    box-shadow: 0 0 22px color-mix(in srgb, var(--wb-primary) 55%, transparent);
+    will-change: transform, opacity;
+    animation: gb-hero-horizon-move 6s ease-in-out infinite;
+  }
+
+  .gb-hero-fx-dust {
+    position: absolute;
+    inset: -15% 0;
+    opacity: 0.7;
+    will-change: transform;
+    background-image:
+      radial-gradient(circle at 18% 28%, color-mix(in srgb, var(--wb-text-on-dark) 80%, transparent) 0 1.4px, transparent 2px),
+      radial-gradient(circle at 62% 42%, color-mix(in srgb, var(--wb-primary) 90%, transparent) 0 1.2px, transparent 1.8px),
+      radial-gradient(circle at 78% 22%, color-mix(in srgb, var(--wb-text-on-dark) 75%, transparent) 0 1.6px, transparent 2.2px),
+      radial-gradient(circle at 34% 68%, color-mix(in srgb, var(--wb-text-on-dark) 65%, transparent) 0 1.2px, transparent 1.8px),
+      radial-gradient(circle at 88% 64%, color-mix(in srgb, var(--wb-primary) 80%, transparent) 0 1.4px, transparent 2px),
+      radial-gradient(circle at 48% 18%, color-mix(in srgb, var(--wb-text-on-dark) 70%, transparent) 0 1.1px, transparent 1.7px),
+      radial-gradient(circle at 12% 78%, color-mix(in srgb, var(--wb-primary) 75%, transparent) 0 1.3px, transparent 1.9px),
+      radial-gradient(circle at 55% 82%, color-mix(in srgb, var(--wb-text-on-dark) 60%, transparent) 0 1px, transparent 1.6px);
+  }
+
+  .gb-hero-fx-dust--a {
+    animation: gb-hero-dust-up 11s linear infinite;
+  }
+
+  .gb-hero-fx-dust--b {
+    opacity: 0.5;
+    animation: gb-hero-dust-diag 16s linear infinite reverse;
+  }
+
+  .gb-hero-fx-vignette {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      ellipse at center,
+      transparent 42%,
+      color-mix(in srgb, var(--wb-section-bg-dark) 48%, transparent) 100%
+    );
+    opacity: 0.85;
+  }
+
+  @keyframes gb-hero-wash-move {
+    0% {
+      transform: translate3d(-28%, 0, 0) rotate(6deg);
+      opacity: 0.25;
+    }
+    45% {
+      opacity: 0.85;
+    }
+    100% {
+      transform: translate3d(28%, 0, 0) rotate(6deg);
+      opacity: 0.25;
+    }
+  }
+
+  @keyframes gb-hero-beam-drift-a {
+    0% {
+      transform: skewX(-14deg) translate3d(0, 8%, 0) scaleY(0.9);
+      opacity: 0.3;
+    }
+    50% {
+      transform: skewX(-10deg) translate3d(18%, -6%, 0) scaleY(1.12);
+      opacity: 0.95;
+    }
+    100% {
+      transform: skewX(-14deg) translate3d(36%, 4%, 0) scaleY(0.95);
+      opacity: 0.3;
+    }
+  }
+
+  @keyframes gb-hero-beam-drift-b {
+    0% {
+      transform: skewX(-8deg) translate3d(0, -5%, 0) scaleY(1.05);
+      opacity: 0.35;
+    }
+    50% {
+      transform: skewX(-16deg) translate3d(-14%, 7%, 0) scaleY(0.9);
+      opacity: 0.9;
+    }
+    100% {
+      transform: skewX(-8deg) translate3d(-28%, -2%, 0) scaleY(1.08);
+      opacity: 0.35;
+    }
+  }
+
+  @keyframes gb-hero-horizon-move {
+    0% {
+      opacity: 0.4;
+      transform: translate3d(-4%, -8%, 0) scaleX(0.88);
+    }
+    50% {
+      opacity: 1;
+      transform: translate3d(3%, 10%, 0) scaleX(1.05);
+    }
+    100% {
+      opacity: 0.45;
+      transform: translate3d(6%, -4%, 0) scaleX(0.9);
+    }
+  }
+
+  @keyframes gb-hero-dust-up {
+    0% {
+      transform: translate3d(0, 12%, 0);
+    }
+    100% {
+      transform: translate3d(0, -18%, 0);
+    }
+  }
+
+  @keyframes gb-hero-dust-diag {
+    0% {
+      transform: translate3d(-6%, 10%, 0);
+    }
+    100% {
+      transform: translate3d(8%, -16%, 0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gb-hero-fx-wash,
+    .gb-hero-fx-beam,
+    .gb-hero-fx-horizon,
+    .gb-hero-fx-dust {
+      animation: none;
+    }
+
+    .gb-hero-fx-beam {
+      opacity: 0.45;
+      transform: skewX(-12deg);
+    }
+
+    .gb-hero-fx-horizon {
+      opacity: 0.55;
+      transform: none;
+    }
+
+    .gb-hero-fx-wash {
+      opacity: 0.28;
+      transform: none;
+    }
+  }
+
   /* Cream content block — centered over the hero image */
   .gb-hero-panel {
     position: absolute;
-    z-index: 1;
+    z-index: 3;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -3827,74 +4063,95 @@ html.preloader-active::-webkit-scrollbar-thumb {
     margin-top: 2rem;
   }
 
-  .gb-offerings-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1.25rem;
+  /* Services — checkerboard (reference layout, page bg) */
+  .gb-svc {
+    padding: 4rem 0 4.5rem;
+    background: var(--wb-page-bg);
+    font-family: var(--wb-body-font, sans-serif);
   }
 
-  @media (min-width: 640px) {
-    .gb-offerings-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 1.35rem;
-    }
+  .gb-svc-head {
+    margin: 0 auto 2.5rem;
+    max-width: 40rem;
+    text-align: center;
   }
 
-  @media (min-width: 1024px) {
-    .gb-offerings-grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 1.5rem;
-    }
+  .gb-svc-title {
+    margin: 0 0 0.85rem;
+    font-family: var(--wb-heading-font, sans-serif) !important;
+    font-size: clamp(1.65rem, 3.2vw, 2.25rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--wb-text-main);
   }
 
-  .gb-offering-card {
+  .gb-svc-desc {
+    margin: 0 auto;
+    max-width: 34rem;
+    font-family: var(--wb-body-font, sans-serif) !important;
+    font-size: 0.95rem;
+    font-style: italic;
+    line-height: 1.65;
+    color: var(--wb-text-secondary);
+  }
+
+  .gb-svc-board-wrap {
+    max-width: 56rem;
+  }
+
+  .gb-svc-board {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    min-height: 100%;
-    overflow: hidden;
-    background: var(--wb-page-bg);
-    border: 1px solid color-mix(in srgb, var(--wb-text-main) 12%, transparent);
-    color: inherit;
-    text-align: center;
-    text-decoration: none;
-    transition:
-      border-color 0.25s ease,
-      box-shadow 0.25s ease,
-      transform 0.25s ease;
+    gap: 0;
   }
 
-  .gb-offering-card:hover,
-  .gb-offering-card:focus-visible {
-    border-color: color-mix(in srgb, var(--wb-text-main) 28%, transparent);
-    box-shadow: 0 14px 32px color-mix(in srgb, var(--wb-text-main) 10%, transparent);
-    transform: translateY(-4px);
-    outline: none;
+  .gb-svc-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: stretch;
   }
 
-  .gb-offering-media {
+  @media (min-width: 900px) {
+    .gb-svc-row {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+
+    .gb-svc-row--flip .gb-svc-media {
+      order: 2;
+    }
+
+    .gb-svc-row--flip .gb-svc-panel {
+      order: 1;
+    }
+  }
+
+  .gb-svc-media {
     position: relative;
-    width: 100%;
-    aspect-ratio: 16 / 10;
+    min-height: 14rem;
+    aspect-ratio: 1;
     overflow: hidden;
-    background: var(--wb-section-bg-light);
+    background: color-mix(in srgb, var(--wb-text-main) 5%, var(--wb-page-bg));
+    will-change: transform, opacity, clip-path;
   }
 
-  .gb-offering-card:not(:has(.gb-offering-media)) {
-    padding: 1.35rem 1.25rem;
-    gap: 0.75rem;
+  @media (min-width: 900px) {
+    .gb-svc-media {
+      min-height: 0;
+      height: auto;
+    }
   }
 
-  .gb-offering-media img {
-    transition: transform 0.45s ease;
+  .gb-svc-media img {
+    object-fit: cover;
+    object-position: center;
+    transition: transform 0.55s ease;
   }
 
-  .gb-offering-card:hover .gb-offering-media img,
-  .gb-offering-card:focus-visible .gb-offering-media img {
-    transform: scale(1.05);
+  .gb-svc-row:hover .gb-svc-media img {
+    transform: scale(1.03);
   }
 
-  .gb-offering-media-fallback {
+  .gb-svc-media-fallback {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -3903,77 +4160,119 @@ html.preloader-active::-webkit-scrollbar-thumb {
     color: var(--wb-text-secondary);
   }
 
-  .gb-card-icon {
-    width: 2rem;
-    height: 2rem;
-    color: var(--wb-text-main);
+  .gb-svc-media-fallback svg {
+    width: 2.5rem;
+    height: 2.5rem;
   }
 
-  .gb-offering-body {
+  .gb-svc-panel {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    flex: 1;
-    width: 100%;
-    gap: 0.65rem;
-    padding: 1.25rem 1.2rem 1.35rem;
-    text-align: center;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 0.55rem;
+    padding: 1.35rem 1.4rem;
+    background: color-mix(in srgb, white 92%, var(--wb-page-bg));
+    border: 1px solid color-mix(in srgb, var(--wb-text-main) 8%, transparent);
   }
 
-  .gb-offering-title {
-    margin: 0;
-    font-family: var(--wb-heading-font, sans-serif);
-    font-size: 1.1rem;
-    font-weight: 700;
-    line-height: 1.3;
-    letter-spacing: -0.01em;
-    text-align: center;
-    color: var(--wb-text-main);
+  @media (min-width: 900px) {
+    .gb-svc-panel {
+      aspect-ratio: 1;
+      padding: 1.5rem 1.65rem;
+      border: none;
+      border-left: 1px solid color-mix(in srgb, var(--wb-text-main) 8%, transparent);
+    }
+
+    .gb-svc-row--flip .gb-svc-panel {
+      border-left: none;
+      border-right: 1px solid color-mix(in srgb, var(--wb-text-main) 8%, transparent);
+    }
   }
 
-  .gb-offering-desc {
-    margin: 0;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    font-family: var(--wb-body-font, sans-serif);
-    font-size: 0.875rem;
-    line-height: 1.55;
-    text-align: center;
-    color: var(--wb-text-secondary);
-  }
-
-  .gb-offering-link {
+  .gb-svc-icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.4rem;
-    margin-top: auto;
-    padding-top: 0.35rem;
-    font-family: var(--wb-body-font, sans-serif);
-    font-size: 0.8125rem;
-    font-weight: 650;
-    letter-spacing: 0.01em;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--wb-primary) 14%, var(--wb-page-bg));
+    color: var(--wb-primary);
+  }
+
+  .gb-svc-icon svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .gb-svc-name {
+    margin: 0;
+    font-family: var(--wb-heading-font, sans-serif) !important;
+    font-size: clamp(1rem, 1.8vw, 1.2rem);
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
     color: var(--wb-text-main);
   }
 
-  .gb-offering-link svg {
-    width: 1rem;
-    height: 1rem;
-    transition: transform 0.25s ease;
+  .gb-svc-copy {
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    max-width: 28rem;
+    font-family: var(--wb-body-font, sans-serif) !important;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--wb-text-secondary);
   }
 
-  .gb-offering-card:hover .gb-offering-link svg,
-  .gb-offering-card:focus-visible .gb-offering-link svg {
-    transform: translateX(3px);
+  .gb-svc-link {
+    margin-top: 0.35rem;
+    font-family: var(--wb-body-font, sans-serif) !important;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--wb-text-main);
+    transition: color 0.2s ease;
+  }
+
+  .gb-svc-link:hover,
+  .gb-svc-link:focus-visible {
+    color: var(--wb-primary);
+    outline: none;
+  }
+
+  .gb-svc-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem 1.5rem;
+    margin-top: 2.5rem;
+  }
+
+  .gb-svc-more {
+    font-family: var(--wb-body-font, sans-serif) !important;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    color: var(--wb-text-secondary);
+  }
+
+  .gb-svc-more:hover {
+    color: var(--wb-text-main);
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .gb-offering-card,
-    .gb-offering-card:hover,
-    .gb-offering-media img,
-    .gb-offering-link svg {
+    .gb-svc-media img,
+    .gb-svc-row:hover .gb-svc-media img {
       transition: none;
       transform: none;
     }
@@ -4249,7 +4548,7 @@ html.preloader-active::-webkit-scrollbar-thumb {
     position: relative;
     min-height: 16rem;
     overflow: hidden;
-    background: var(--wb-section-bg-light);
+    background: transparent;
   }
 
   @media (min-width: 1024px) {
@@ -4259,9 +4558,30 @@ html.preloader-active::-webkit-scrollbar-thumb {
     }
   }
 
+  .gb-about-reveal {
+    position: absolute;
+    inset: 0;
+    will-change: transform, opacity, clip-path;
+  }
+
+  @media (min-width: 1024px) {
+    /* Keep figure clear of the cream frame bars */
+    .gb-about-reveal {
+      inset: max(3rem, 8vh) 0.75rem;
+    }
+  }
+
   .gb-about-image {
-    object-fit: cover;
+    object-fit: contain;
     object-position: center;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gb-about-reveal {
+      transform: none !important;
+      opacity: 1 !important;
+      clip-path: none !important;
+    }
   }
 
   /*
@@ -4292,13 +4612,11 @@ html.preloader-active::-webkit-scrollbar-thumb {
     .gb-about-border--top {
       top: 0;
       height: max(3rem, 8vh);
-      border-bottom: 1px solid color-mix(in srgb, var(--wb-text-main) 22%, transparent);
     }
 
     .gb-about-border--bottom {
       bottom: 0;
       height: max(3rem, 8vh);
-      border-top: 1px solid color-mix(in srgb, var(--wb-text-main) 22%, transparent);
     }
   }
 
